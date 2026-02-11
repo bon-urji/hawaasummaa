@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+body {
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+
+}
+.general {
+  background-color: #2ecc71;       
+  width: 320px;                   
+  max-width: 90%;                  
+  padding: 30px 25px;              
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  border-radius: 15px;             
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin-left: 20px;
+  color: #fff;                     
+  gap: 20px;
+  transition: all 0.3s ease;      
+}
+.general:hover {
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.45);
+}
+.general h1,
+.general h2 {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+}
+.general button {
+  background-color: #27ae60;     
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.general link {
+  color: #cc5009;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.general link :hover {
+  color: #13d301;
+}
+
+.general button:hover {
+  background-color: #da1446;       
+}
+.general a {
+  color: #ebe7c8;                  
+  text-decoration: none;
+  font-weight: 500;
+  transition: 1s;
+}
+.general a:hover {
+  color: #ff008c;                 
+}
+.Register-link {
+  color: #f1c40f;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 5px 12px;
+  border: 2px solid #f1c40f;
+  border-radius: 5px;
+  background-color: #27ae60;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.Register-link:hover {
+  background-color: #2ecc71;
+  color: #fff;
+  border-color: #2ecc71;
+}
+.general .link {
+  color: #f1870f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  background-color: #ededed;
+}
+
+.general .link:hover {
+  color: #13d301;
+}
+
+*{
+background-image: radial-gradient(circle, rgba(89, 131, 252, 1) 50%, rgba(41, 53, 86, 1) 82%);
+ background: url(/Mood-Tracker-Journal-Apps.jpg) no-repeat center center fixed;
+   background-size: cover;
+}

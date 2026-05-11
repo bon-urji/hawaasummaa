@@ -1,7 +1,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {RegisterUser} from "@/services/auth";
+import {registerUser} from "@/services/auth";
 export default function RegisterPage(){
   const [ name, setName] = useState('');
   const [ email, setEmail] = useState('');
@@ -23,7 +23,7 @@ export default function RegisterPage(){
       return;
     }
     setLoading(true);
-    const result = await RegisterUser(email,password,name)
+    const result = await registerUser(email,password,name)
     if(result.success){
       setSuccess(true);
       setTimeout( () =>{

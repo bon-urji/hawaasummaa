@@ -39,6 +39,9 @@ export default function Home() {
           <p>Email: {user.email}</p>
           <p>User ID: {user.id}</p>
           <button onClick={handleLogout}>Logout</button>
+          <div style ={{marginTop:'20px'}}>
+            <a href = "/posts" style = {{color:'green'}}>View posts</a>
+          </div>
         </div>
       ) : (
       

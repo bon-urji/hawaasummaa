@@ -1,7 +1,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginUser } from "@/services/auth";
+import { loginUser } from "@/services/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    const result = await LoginUser(email, password);
+    const result = await loginUser(email, password);
 
     if (result.success) {
       router.push('/');
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
       <p style={{ fontSize: '16px', color: '#fff', marginTop: '15px' }}>
         Do not have an account?{" "}
-        <a 
+        <a
           href="/Register" className="Register-link"
         >
           Register

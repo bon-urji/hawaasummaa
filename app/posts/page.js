@@ -1,5 +1,5 @@
 'use client';
-
+import Link from "next/link";
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '@/services/auth';
 import { createPost, getAllPosts, deletePost } from '@/services/database';
@@ -194,6 +194,14 @@ export default function PostsPage() {
                             </div>
                         ))}
 
+                    </div>
+                    <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
+                        <Link
+                            href="/"
+                            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-full shadow-xl transition"
+                        >
+                            Home
+                        </Link>
                     </div>
 
                 </div>

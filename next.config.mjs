@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  reactCompiler: true,
+  images: {
+    domains: ['fra.cloud.appwrite.io'],
+  },
 };
 
 export default nextConfig;

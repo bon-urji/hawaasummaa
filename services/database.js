@@ -11,7 +11,8 @@ import {
 //
 // 🟢 CREATE POST
 //
-export async function createPost(userId, email, name, content) {
+export async function createPost(userId, email, name, content , imageUrl = "",
+  imageId = "") {
   try {
     const post = await databases.createDocument(
       DATABASE_ID,
@@ -22,6 +23,8 @@ export async function createPost(userId, email, name, content) {
   userEmail: email,
   userName: name,
   content,
+  imageUrl,
+  imageId
 }
     );
 

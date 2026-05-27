@@ -1,35 +1,56 @@
 'use client';
+
 import Link from "next/link";
 import { useState, useEffect } from 'react';
+
 import { getCurrentUser } from '@/services/auth';
-import { createPost, getAllPosts, deletePost } from '@/services/database';
+import {
+    createPost,
+    getAllPosts,
+    deletePost
+} from '@/services/database';
+
+import { uploadImage } from '@/services/storage';
+
 export default function PostsPage() {
+
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState('');
+    const [image, setImage] = useState(null);
+
     const [loading, setLoading] = useState(true);
     const [posting, setPosting] = useState(false);
     const [error, setError] = useState('');
 
-    // LOAD ON START
+    // LOAD PAGE
     useEffect(() => {
         init();
     }, []);
 
+    // INIT
     const init = async () => {
+
         setLoading(true);
 
         try {
+
             const userResult = await getCurrentUser();
 
             if (userResult.success) {
+
                 setUser(userResult.user);
+
                 await loadPosts();
+
             } else {
+
                 setError("Please login first");
             }
-        } catch (err) {
-            setError(err.message);
+
+        } catch (error) {
+
+            setError(error.message);
         }
 
         setLoading(false);
@@ -37,36 +58,78 @@ export default function PostsPage() {
 
     // LOAD POSTS
     const loadPosts = async () => {
+
         const result = await getAllPosts();
 
         if (result.success) {
+
             setPosts(result.posts);
+
         } else {
-            setError(result.error || "Failed to load posts");
+
+            setError(result.error);
         }
     };
 
     // CREATE POST
     const handleCreatePost = async (e) => {
+
         e.preventDefault();
 
-        if (!newPost.trim() || !user) return;
+        if (!newPost.trim()) return;
 
         setPosting(true);
         setError('');
 
-        const result = await createPost(
-            user.id,   // ✅ FIXED (NO $id)
-            user.email,
-            user.name,
-            newPost
-        );
+        try {
 
-        if (result.success) {
-            setNewPost('');
-            await loadPosts();
-        } else {
-            setError(result.error);
+            let imageUrl = '';
+            let imageId = '';
+
+            // upload image
+            if (image) {
+
+                const uploadResult = await uploadImage(image);
+
+                if (uploadResult.success) {
+
+                    imageUrl = uploadResult.imageUrl;
+                    imageId = uploadResult.fileId;
+
+                } else {
+
+                    setError(uploadResult.error);
+                    setPosting(false);
+
+                    return;
+                }
+            }
+
+            // create post
+            const result = await createPost(
+                user.$id || user.id,
+                user.email,
+                user.name,
+                newPost,
+                imageUrl,
+                imageId
+            );
+
+            if (result.success) {
+
+                setNewPost('');
+                setImage(null);
+
+                await loadPosts();
+
+            } else {
+
+                setError(result.error);
+            }
+
+        } catch (error) {
+
+            setError(error.message);
         }
 
         setPosting(false);
@@ -74,34 +137,49 @@ export default function PostsPage() {
 
     // DELETE POST
     const handleDeletePost = async (id) => {
-        if (!confirm("Delete this post?")) return;
+
+        const confirmDelete = confirm(
+            "Delete this post?"
+        );
+
+        if (!confirmDelete) return;
 
         const result = await deletePost(id);
 
         if (result.success) {
+
             await loadPosts();
+
         } else {
+
             setError(result.error);
         }
     };
 
-    // LOADING UI
-    if (loading) return <h2>Loading...</h2>;
+    // LOADING
+    if (loading) {
 
-    // LOGIN UI
-    if (!user) {
         return (
-            <div>
-                <h2>Please login first</h2>
+            <h2 className="text-white p-10">
+                Loading...
+            </h2>
+        );
+    }
+
+    // NO USER
+    if (!user) {
+
+        return (
+            <div className="p-10 text-white">
+                Please login first
             </div>
         );
     }
 
-
     return (
+
         <div className="min-h-screen bg-[url('/bg.jpg')] bg-cover bg-center bg-fixed">
 
-            {/* DARK OVERLAY */}
             <div className="min-h-screen bg-black/40 backdrop-blur-sm py-10 px-4">
 
                 <div className="max-w-2xl mx-auto">
@@ -121,9 +199,11 @@ export default function PostsPage() {
 
                     {/* ERROR */}
                     {error && (
-                        <div className="bg-red-500/20 text-red-100 p-4 rounded-2xl mb-5 border border-red-300/20">
+
+                        <div className="bg-red-500/20 text-red-100 p-4 rounded-2xl mb-5">
                             {error}
                         </div>
+
                     )}
 
                     {/* CREATE POST */}
@@ -135,10 +215,32 @@ export default function PostsPage() {
                         <textarea
                             value={newPost}
                             onChange={(e) => setNewPost(e.target.value)}
-                            maxLength={500}
                             placeholder="What's on your mind?"
-                            className="w-full h-32 bg-white/10 text-white placeholder-gray-300 border border-white/20 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                            className="w-full h-32 bg-white/10 text-white border border-white/20 rounded-2xl p-4 outline-none resize-none"
                         />
+
+                        {/* IMAGE INPUT */}
+                        <div className="mt-4">
+
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files[0])}
+                                className="text-white"
+                            />
+
+                        </div>
+
+                        {/* IMAGE PREVIEW */}
+                        {image && (
+
+                            <img
+                                src={URL.createObjectURL(image)}
+                                alt="preview"
+                                className="w-full mt-4 rounded-2xl"
+                            />
+
+                        )}
 
                         <div className="flex justify-between items-center mt-4">
 
@@ -148,7 +250,7 @@ export default function PostsPage() {
 
                             <button
                                 disabled={posting}
-                                className="bg-cyan-500 hover:bg-cyan-600 hover:scale-105 text-white px-6 py-3 rounded-2xl font-semibold transition duration-300 cursor-pointer shadow-lg"
+                                className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-2xl"
                             >
                                 {posting ? "Posting..." : "Post"}
                             </button>
@@ -161,6 +263,7 @@ export default function PostsPage() {
                     <div className="space-y-6">
 
                         {posts.map((post) => (
+
                             <div
                                 key={post.$id}
                                 className="bg-white/10 backdrop-blur-md shadow-2xl rounded-3xl p-6 border border-white/20"
@@ -169,39 +272,58 @@ export default function PostsPage() {
                                 <div className="flex justify-between items-start">
 
                                     <div>
+
                                         <h3 className="font-bold text-xl text-white">
-                                            {post.userName || post.name}
+                                            {post.userName}
                                         </h3>
 
                                         <p className="text-sm text-gray-300">
-                                            {post.userEmail || post.email}
+                                            {post.userEmail}
                                         </p>
+
                                     </div>
 
                                     <button
                                         onClick={() => handleDeletePost(post.$id)}
-                                        className="bg-red-500 hover:bg-red-600 hover:scale-105 text-white px-4 py-2 rounded-xl transition duration-300 cursor-pointer shadow-md"
+                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl"
                                     >
                                         Delete
                                     </button>
 
                                 </div>
 
-                                <p className="text-white mt-5 leading-relaxed text-lg">
+                                {/* CONTENT */}
+                                <p className="text-white mt-5 text-lg">
                                     {post.content}
                                 </p>
 
+                                {/* IMAGE */}
+                                {post.imageUrl && (
+
+                                   <img
+   src={post.imageUrl}
+   alt="post"
+   className="max-w-sm w-full mt-4 rounded-2xl object-cover"
+/>
+
+                                )}
+
                             </div>
+
                         ))}
 
                     </div>
+
+                    {/* HOME */}
                     <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
+
                         <Link
                             href="/"
-                            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-full shadow-xl transition"
+                            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-full"
                         >
                             Home
                         </Link>
+
                     </div>
 
                 </div>

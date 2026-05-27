@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+ waantota naaf gale use client jechuun next.js keessatti waarreen akka usestate,eseaeffect,oncli akka hojjetaniif nu gargaara sababni isaa next.js defualt dhaan server side kana qabaatee jennaan amme akka user itti fayyadamuuf nu gargaara jechuudha
+ import data kana asitti naaf fidi nan fayyadama jechuudha
+ useState data kuusa ykn save godha
+ useEffect ammoo data kana automaticaly hojjeta
+ 
+`https://cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID}/files/${result.$id}/view?project=6985db13002daaed2f76`;
+// services/auth.js
 
-## Getting Started
+import { account, ID } from "../lib/appwrite";
 
-First, run the development server:
+// REGISTER
+export async function registerUser(email, password, name) {
+  try {
+    const user = await account.create(
+      ID.unique(),
+      email,
+      password,
+      name
+    );
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    return {
+      success: true,
+      userId: user.$id,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+// LOGIN
+export async function loginUser(email, password) {
+  try {
+    await account.createEmailPasswordSession(email, password);
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+    const user = await account.get();
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    return {
+      success: true,
+      user: {
+        id: user.$id,   // IMPORTANT: always use id
+        email: user.email,
+        name: user.name,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
 
-## Learn More
+// LOGOUT
+export async function logoutUser() {
+  try {
+    await account.deleteSession("current");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
-To learn more about Next.js, take a look at the following resources:
+// CURRENT USER
+export async function getCurrentUser() {
+  try {
+    const user = await account.get();
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    return {
+      success: true,
+      user: {
+        id: user.$id,
+        email: user.email,
+        name: user.name,
+      },
+    };
+  } catch (error) {
+    return { success: false };
+  }
+}

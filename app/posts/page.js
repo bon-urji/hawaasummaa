@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState, useEffect } from 'react';
-
+import { addLike, addComment, getLikes, getComments } from "@/services/social";
 import { getCurrentUser } from '@/services/auth';
+
 import {
     createPost,
     getAllPosts,
@@ -16,8 +17,13 @@ export default function PostsPage() {
 
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
+
     const [newPost, setNewPost] = useState('');
     const [image, setImage] = useState(null);
+
+    const [comments, setComments] = useState({});
+    const [commentText, setCommentText] = useState({});
+    const [likes, setLikes] = useState({});
 
     const [loading, setLoading] = useState(true);
     const [posting, setPosting] = useState(false);
@@ -154,6 +160,34 @@ export default function PostsPage() {
 
             setError(result.error);
         }
+    };
+
+    // LIKE
+    const handleLike = (postId) => {
+
+        setLikes((prev) => ({
+            ...prev,
+            [postId]: (prev[postId] || 0) + 1
+        }));
+    };
+
+    // COMMENT
+    const handleComment = (postId) => {
+
+        if (!commentText[postId]?.trim()) return;
+
+        setComments((prev) => ({
+            ...prev,
+            [postId]: [
+                ...(prev[postId] || []),
+                commentText[postId]
+            ]
+        }));
+
+        setCommentText((prev) => ({
+            ...prev,
+            [postId]: ''
+        }));
     };
 
     // LOADING
@@ -300,13 +334,66 @@ export default function PostsPage() {
                                 {/* IMAGE */}
                                 {post.imageUrl && (
 
-                                   <img
-   src={post.imageUrl}
-   alt="post"
-   className="max-w-sm w-full mt-4 rounded-2xl object-cover"
-/>
+                                    <img
+                                        src={post.imageUrl}
+                                        alt="post"
+                                        className="max-w-sm w-full mt-4 rounded-2xl object-cover"
+                                    />
 
                                 )}
+
+                                {/* LIKE BUTTON */}
+                                <div className="mt-5 flex gap-3">
+
+                                    <button
+                                        onClick={() => handleLike(post.$id)}
+                                        className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl"
+                                    >
+                                        ❤️ {likes[post.$id] || 0} Likes
+                                    </button>
+
+                                </div>
+
+                                {/* COMMENT INPUT */}
+                                <div className="mt-5">
+
+                                    <input
+                                        type="text"
+                                        value={commentText[post.$id] || ''}
+                                        onChange={(e) =>
+                                            setCommentText((prev) => ({
+                                                ...prev,
+                                                [post.$id]: e.target.value
+                                            }))
+                                        }
+                                        placeholder="Write comment..."
+                                        className="w-full bg-white/10 text-white border border-white/20 rounded-xl p-3 outline-none"
+                                    />
+
+                                    <button
+                                        onClick={() => handleComment(post.$id)}
+                                        className="mt-3 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl"
+                                    >
+                                        Add Comment
+                                    </button>
+
+                                </div>
+
+                                {/* COMMENTS */}
+                                <div className="mt-4 space-y-2">
+
+                                    {(comments[post.$id] || []).map((comment, index) => (
+
+                                        <div
+                                            key={index}
+                                            className="bg-white/10 text-white p-3 rounded-xl"
+                                        >
+                                            💬 {comment}
+                                        </div>
+
+                                    ))}
+
+                                </div>
 
                             </div>
 

@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/services/auth";
 import { createPost } from "@/services/database";
 import { uploadImage } from "@/services/storage";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { FaImage } from "react-icons/fa";
 
 export default function CreatePostPage() {
     const [content, setContent] = useState("");
@@ -98,7 +98,7 @@ export default function CreatePostPage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="max-w-xl ml-auto mr-10">
             <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,13 +124,19 @@ export default function CreatePostPage() {
                             </button>
                         </div>
                     ) : (
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="border p-2 rounded"
-                        />
-                    )}
+                        <label className="flex items-center gap-3 cursor-pointer text-white bg-white/10 px-4 py-3 rounded-2xl w-fit hover:bg-white/20 transition">
+                            <FaImage className="text-2xl" />
+                            <span>Select Image</span>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageSelect}
+                                className="hidden"
+                            />
+                        </label>
+                     )
+                        
+                }
                 </div>
 
                 {/* Content */}
@@ -143,6 +149,7 @@ export default function CreatePostPage() {
                         placeholder="Write something amazing..."
                         required
                     />
+                    
                 </div>
 
                 {error && <p className="text-red-500">{error}</p>}
